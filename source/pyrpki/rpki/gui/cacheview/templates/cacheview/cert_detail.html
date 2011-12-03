@@ -1,0 +1,94 @@
+{% extends "cacheview/signedobject_detail.html" %}
+
+{% block title %}
+Resource Certificate Detail
+{% endblock %}
+
+{% block detail %}
+
+<h2>RFC3779 Resources</h2>
+
+<table>
+    <tr><th>AS Ranges</th><th>IP Ranges</th></tr>
+    <tr>
+        <td style='text-align:left;vertical-align:top'>
+            <ul class='compact'>
+                {% for asn in object.asns.all %}
+                <li><a href="{{ asn.get_absolute_url }}">{{ asn }}</a></li>
+                {% endfor %}
+            </ul>
+        </td>
+        <td style='text-align:left;vertical-align:top'>
+            <ul class='compact'>
+                {% for rng in object.addresses.all %}
+                <li><a href="{{ rng.get_absolute_url }}">{{ rng }}</a></li>
+                {% endfor %}
+            </ul>
+        </td>
+    </tr>
+</table>
+
+<div class='section'>
+<h2>Issued Objects</h2>
+<ul>
+
+{% if object.ghostbusters.all %}
+    <li>
+<h3>Ghostbusters</h3>
+
+<table>
+    <tr><th>Name</th><th>Valid</th><th>Until</th></tr>
+
+{% for g in object.ghostbusters.all %}
+    <tr class='{{ g.status_id }}'>
+        <td><a href="{{ g.get_absolute_url }}">{{ g }}</a></td>
+        <td>{{ g.is_valid }}</td>
+        <td>{{ g.not_after }}</td>
+    </tr>
+{% endfor %}
+
+</table>
+{% endif %}
+
+{% if object.roas.all %}
+        <li>
+<h3>ROAs</h3>
+<table>
+    <tr><th>Prefix</th><th>AS</th><th>Valid</th><th>Until</th></tr>
+    {% for roa in object.roas.all %}
+    {% for pfx in roa.prefixes.all %}
+    <tr class='{{ roa.status_id }}'>
+        <td>{{ pfx }}</td>
+        <td>{{ roa.asid }}</td>
+        <td><a href="{{ roa.get_absolute_url }}">{{ roa.is_valid }}</a></td>
+        <td>{{ roa.not_after }}</td>
+    </tr>
+    {% endfor %}
+    {% endfor %}
+</table>
+{% endif %}
+
+{% if object.children.all %}
+<li>
+<h3>Children</h3>
+<table>
+    <tr><th>Name</th><th>SIA</th><th>Valid</th><th>Until</th><th>Ghostbuster</th></tr>
+
+    {% for child in object.children.all %}
+    <tr class='{{ child.status_id }}'>
+        <td><a href="{{ child.get_absolute_url }}">{{ child.name }}</a></td>
+        <td>{{ child.sia }}</td>
+        <td>{{ child.is_valid }}</td>
+        <td>{{ child.not_after }}</td>
+        <td><a href="{{ child.ghostbusters.all.0.get_absolute_url }}">{{ child.ghostbusters.all.0 }}</a></td>
+    </tr>
+    {% endfor %}
+
+</table>
+{% endif %}
+
+</ul>
+
+</div><!--issued objects-->
+
+{% endblock %}
