@@ -9,6 +9,7 @@ import socket
 
 def parse_roas(roa_files):
     roas=[]
+    #TODO: remove limit 
     for file in roa_files:
         roas.append(Roa(file=file))
         
@@ -73,40 +74,8 @@ def get_roa_tree(dir='/var/rcynic/data/authenticated/'):
                     
     roas = parse_roas(rpki_files['roa'])
     
-    # Generate Prefix Tables
-    prefix_table = {
-                    socket.AF_INET : {},
-                    socket.AF_INET6 : {},
-                    }
-    
-    
     for roa in roas:
-        for prefix in roa.prefixes:
-            af = None
-            if prefix[0].version == 4:
-                af = socket.AF_INET
-            elif prefix[0].version == 6:
-                af = socket.AF_INET6
-            try:
-                prefix_table[af][prefix[0]].append(roa)
-            except KeyError:
-                prefix_table[af][prefix[0]]=[roa]
-                
-    for af in prefix_table:
-                
-        for prefix in prefix_table[af]:
-            
-            parents = 0
-            for check_prefix in prefix_table[af]:
-                if check_prefix != prefix and check_prefix.Contains(prefix) != False:
-                    parents += 1    
-
-
-            if parents == 0:
-                tree[af].childs.append(RoaNode(prefix=ipaddr.IPv4Network('0.0.0.0/0')))
-                #print prefix,parents
-            
-    
-    #print len(roas)
-    
+        tree[socket.AF_INET].add_roa(roa)
+        tree[socket.AF_INET6].add_roa(roa)
+        
     return tree

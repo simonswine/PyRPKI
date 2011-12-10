@@ -14,14 +14,16 @@ class Roa(object):
     '''
     Represent a node in the roa tree
     '''
-    prefixes = []
-    signer = None
-    asnum = None
-    
+
     def __init__(self,file=None):
         '''
         Constructa
         '''
+        self.prefixes = []
+        self.signer =  None
+        self.asnum = None
+        
+        
         if file:
             self.from_roa_file(file)
         else:
@@ -31,6 +33,17 @@ class Roa(object):
         
         
         pass
+    
+    def set_as(self,asnum):
+        self.asnum = asnum
+    
+    def add_prefix(self,prefix,max_len=None):
+        
+        if max_len == None:
+            max_len = prefix.prefixlen
+        elif prefix.prefixlen > max_len or prefix.max_prefixlen < max_len:
+            raise ValueError('Falsche Prefixlaenge')
+        self.prefixes.append((prefix,max_len))
     
     def from_roa_file(self,file):
         self.prefixes = []
@@ -59,7 +72,7 @@ class Roa(object):
                     raise ValueError('Wrong Prefix Length in Roa File')
             
                 # Set Prefixes
-                self.prefixes.append((net,mlen))
+                self.add_prefix(prefix=net,max_len=mlen)
                 self.asnum = asnum
 
         pass    
