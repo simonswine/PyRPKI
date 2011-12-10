@@ -5,7 +5,7 @@ Created on 02.12.2011
 '''
 
 import ipaddr
-from sets import Set
+import datetime
 
 class RoaNode(object):
     '''
@@ -26,7 +26,7 @@ class RoaNode(object):
         
         self.parent = None
         self.roas = []
-        self.childs = Set()
+        self.childs = set()
         
         if prefix==None:
             self.prefix = ipaddr.IPv4Network('0.0.0.0/0')
@@ -165,13 +165,14 @@ class RoaNode(object):
             if max_len < self.prefix.max_prefixlen:
                 rules.append("#PREFIXLIST# permit %s ge %d" % (self.prefix,max_len+1))
             
+        # Erster Aufruf     
         if level == 0:
             if self.prefix.version == 4:
                 command_prefix = 'ip'
             elif self.prefix.version == 6:
                 command_prefix = 'ipv6'
             i=1000
-            rules_proc=[]
+            rules_proc=['! DATA from RPKI validated at lrz.de, LAST UPDATE: %s'% datetime.datetime.now()]
             for line in rules:
                 if not line.find('#PREFIXLIST#'):
                     i+=5
